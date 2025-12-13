@@ -69,7 +69,7 @@
 
 ```bash
 # リポジトリをクローン
-git clone https://github.com/your-username/vanilla-todo-fundamentals.git
+git clone https://github.com/KeisukeSekiguchiDev/vanilla-todo-fundamentals.git
 cd vanilla-todo-fundamentals
 
 # ローカルサーバーを起動
@@ -164,7 +164,9 @@ MIT License
 
 ## Author
 
-[Your Name]
+**Keisuke Sekiguchi** ([@KeisukeSekiguchiDev](https://github.com/KeisukeSekiguchiDev))
+
+- GitHub: [KeisukeSekiguchiDev](https://github.com/KeisukeSekiguchiDev)
 
 ---
 
