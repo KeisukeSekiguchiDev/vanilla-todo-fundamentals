@@ -1,0 +1,332 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>手動テスト: app.js (T-016〜T-020)</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      max-width: 800px;
+      margin: 20px auto;
+      padding: 20px;
+      background: #f5f5f5;
+    }
+    h1 { color: #333; }
+    .test-case {
+      background: white;
+      margin: 15px 0;
+      padding: 15px;
+      border-radius: 5px;
+      border-left: 4px solid #007bff;
+    }
+    .test-case.pass {
+      border-left-color: #28a745;
+    }
+    .test-case.fail {
+      border-left-color: #dc3545;
+    }
+    .test-result {
+      margin-top: 10px;
+      padding: 10px;
+      background: #f8f9fa;
+      border-radius: 3px;
+    }
+    .pass { color: #28a745; font-weight: bold; }
+    .fail { color: #dc3545; font-weight: bold; }
+    button {
+      margin: 5px;
+      padding: 8px 16px;
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+  <h1>手動テスト: app.js (T-016〜T-020)</h1>
+
+  <section class="test-case" id="test-T016">
+    <h2>T-016: init関数の実装</h2>
+    <p><strong>テスト内容:</strong> ページロード時にデータが復元され、UIが表示される</p>
+    <p><strong>事前準備:</strong> localStorageにテストデータを保存</p>
+    <button onclick="setupTestData()">テストデータ準備</button>
+    <button onclick="testInit()">テスト実行（ページリロード）</button>
+    <div class="test-result" id="result-T016"></div>
+  </section>
+
+  <section class="test-case" id="test-T017">
+    <h2>T-017: setupEventListeners関数の実装</h2>
+    <p><strong>テスト内容:</strong> 全てのイベントリスナーが正しく登録されている</p>
+    <ul>
+      <li>追加ボタンのクリックイベント</li>
+      <li>Enterキーでの追加</li>
+      <li>フィルタボタンのクリック</li>
+      <li>タスクリストのクリック（イベント委譲）</li>
+    </ul>
+    <button onclick="testEventListeners()">テスト実行</button>
+    <div class="test-result" id="result-T017"></div>
+  </section>
+
+  <section class="test-case" id="test-T018">
+    <h2>T-018: handleAddTodo関数の実装</h2>
+    <p><strong>テスト内容:</strong> タスク追加処理</p>
+    <ul>
+      <li>正常なタスク追加</li>
+      <li>空文字・空白のみは追加されない</li>
+      <li>追加後に入力欄がクリアされる</li>
+    </ul>
+    <button onclick="testHandleAddTodo()">テスト実行</button>
+    <div class="test-result" id="result-T018"></div>
+  </section>
+
+  <section class="test-case" id="test-T019">
+    <h2>T-019: handleDeleteTodo/handleToggleTodo関数の実装</h2>
+    <p><strong>テスト内容:</strong> 削除・完了切替処理</p>
+    <ul>
+      <li>削除ボタンで該当タスクが削除される</li>
+      <li>チェックボックスで完了状態が切り替わる</li>
+    </ul>
+    <button onclick="testHandleDeleteToggle()">テスト実行</button>
+    <div class="test-result" id="result-T019"></div>
+  </section>
+
+  <section class="test-case" id="test-T020">
+    <h2>T-020: handleFilterChange/render関数の実装</h2>
+    <p><strong>テスト内容:</strong> フィルタ変更と再描画</p>
+    <ul>
+      <li>「すべて」フィルタで全タスク表示</li>
+      <li>「未完了」フィルタで未完了のみ表示</li>
+      <li>「完了」フィルタで完了のみ表示</li>
+    </ul>
+    <button onclick="testFilterChange()">テスト実行</button>
+    <div class="test-result" id="result-T020"></div>
+  </section>
+
+  <script type="module">
+    // テストデータの準備
+    window.setupTestData = function() {
+      const testTodos = [
+        { id: 'test-1', text: 'テストタスク1（未完了）', completed: false, createdAt: new Date().toISOString() },
+        { id: 'test-2', text: 'テストタスク2（完了）', completed: true, createdAt: new Date().toISOString() },
+        { id: 'test-3', text: 'テストタスク3（未完了）', completed: false, createdAt: new Date().toISOString() }
+      ];
+      localStorage.setItem('vanilla-todo-items', JSON.stringify(testTodos));
+      document.getElementById('result-T016').innerHTML = '<span class="pass">✓</span> テストデータを保存しました。ページをリロードしてください。';
+    };
+
+    // T-016: init関数のテスト
+    window.testInit = function() {
+      location.reload();
+    };
+
+    // T-017: setupEventListeners関数のテスト
+    window.testEventListeners = function() {
+      const results = [];
+
+      // 追加ボタンのイベント確認
+      const addButton = document.getElementById('add-button');
+      if (addButton && addButton.onclick) {
+        results.push('✓ 追加ボタンにイベント登録済み');
+      } else {
+        results.push('✗ 追加ボタンにイベントなし');
+      }
+
+      // 入力欄のEnterキー確認
+      const input = document.getElementById('todo-input');
+      if (input && (input.onkeypress || input.onkeydown)) {
+        results.push('✓ 入力欄にキーイベント登録済み');
+      } else {
+        results.push('⚠ 入力欄にキーイベント未確認（後で実装確認）');
+      }
+
+      // フィルタボタンの確認
+      const filterButtons = document.querySelectorAll('.filter-button');
+      let filterEventsOk = true;
+      filterButtons.forEach(btn => {
+        if (!btn.onclick) {
+          filterEventsOk = false;
+        }
+      });
+      if (filterEventsOk) {
+        results.push('✓ フィルタボタンにイベント登録済み');
+      } else {
+        results.push('✗ フィルタボタンにイベントなし');
+      }
+
+      // タスクリストのイベント委譲確認
+      const todoList = document.getElementById('todo-list');
+      if (todoList && todoList.onclick) {
+        results.push('✓ タスクリストにイベント委譲登録済み');
+      } else {
+        results.push('✗ タスクリストにイベント委譲なし');
+      }
+
+      document.getElementById('result-T017').innerHTML = results.join('<br>');
+    };
+
+    // T-018: handleAddTodo関数のテスト
+    window.testHandleAddTodo = function() {
+      const input = document.getElementById('todo-input');
+      const results = [];
+
+      // テスト1: 正常なタスク追加
+      input.value = 'テスト追加タスク';
+      const beforeCount = document.querySelectorAll('#todo-list li').length;
+      document.getElementById('add-button').click();
+      const afterCount = document.querySelectorAll('#todo-list li').length;
+      if (afterCount > beforeCount) {
+        results.push('✓ タスクが追加された');
+      } else {
+        results.push('✗ タスクが追加されていない');
+      }
+
+      // テスト2: 入力欄がクリアされる
+      if (input.value === '') {
+        results.push('✓ 追加後に入力欄がクリアされた');
+      } else {
+        results.push('✗ 入力欄がクリアされていない');
+      }
+
+      // テスト3: 空文字は追加されない
+      input.value = '   ';
+      const beforeCount2 = document.querySelectorAll('#todo-list li').length;
+      document.getElementById('add-button').click();
+      const afterCount2 = document.querySelectorAll('#todo-list li').length;
+      if (afterCount2 === beforeCount2) {
+        results.push('✓ 空白のみは追加されない');
+      } else {
+        results.push('✗ 空白のみが追加されてしまった');
+      }
+
+      document.getElementById('result-T018').innerHTML = results.join('<br>');
+    };
+
+    // T-019: handleDeleteTodo/handleToggleTodo関数のテスト
+    window.testHandleDeleteToggle = function() {
+      const results = [];
+
+      // テスト1: 削除機能
+      const beforeDeleteCount = document.querySelectorAll('#todo-list li').length;
+      const firstDeleteButton = document.querySelector('.todo-item__delete');
+      if (firstDeleteButton) {
+        firstDeleteButton.click();
+        const afterDeleteCount = document.querySelectorAll('#todo-list li').length;
+        if (afterDeleteCount < beforeDeleteCount) {
+          results.push('✓ 削除ボタンでタスクが削除された');
+        } else {
+          results.push('✗ 削除ボタンが機能していない');
+        }
+      } else {
+        results.push('⚠ 削除対象のタスクがありません');
+      }
+
+      // テスト2: 完了切替機能
+      const firstCheckbox = document.querySelector('.todo-item__checkbox');
+      if (firstCheckbox) {
+        const beforeState = firstCheckbox.checked;
+        firstCheckbox.click();
+        const afterState = firstCheckbox.checked;
+        if (beforeState !== afterState) {
+          results.push('✓ チェックボックスで完了状態が切り替わった');
+        } else {
+          results.push('✗ チェックボックスが機能していない');
+        }
+      } else {
+        results.push('⚠ チェック対象のタスクがありません');
+      }
+
+      document.getElementById('result-T019').innerHTML = results.join('<br>');
+    };
+
+    // T-020: handleFilterChange/render関数のテスト
+    window.testFilterChange = function() {
+      const results = [];
+
+      // テスト準備: 未完了と完了タスクを追加
+      const input = document.getElementById('todo-input');
+      input.value = '未完了タスクA';
+      document.getElementById('add-button').click();
+      input.value = '未完了タスクB';
+      document.getElementById('add-button').click();
+
+      // 最初のタスクを完了にする
+      const firstCheckbox = document.querySelector('.todo-item__checkbox');
+      if (firstCheckbox && !firstCheckbox.checked) {
+        firstCheckbox.click();
+      }
+
+      // テスト1: 「すべて」フィルタ
+      const allButton = document.querySelector('[data-filter="all"]');
+      allButton.click();
+      const allCount = document.querySelectorAll('#todo-list li').length;
+      if (allCount > 0) {
+        results.push(`✓ 「すべて」フィルタ: ${allCount}件表示`);
+      } else {
+        results.push('✗ 「すべて」フィルタが機能していない');
+      }
+
+      // テスト2: 「未完了」フィルタ
+      const activeButton = document.querySelector('[data-filter="active"]');
+      activeButton.click();
+      const activeCount = document.querySelectorAll('#todo-list li').length;
+      results.push(`⚠ 「未完了」フィルタ: ${activeCount}件表示（未完了タスクのみか確認）`);
+
+      // テスト3: 「完了」フィルタ
+      const completedButton = document.querySelector('[data-filter="completed"]');
+      completedButton.click();
+      const completedCount = document.querySelectorAll('#todo-list li').length;
+      results.push(`⚠ 「完了」フィルタ: ${completedCount}件表示（完了タスクのみか確認）`);
+
+      document.getElementById('result-T020').innerHTML = results.join('<br>');
+    };
+  </script>
+
+  <!-- 実際のアプリケーションをロード -->
+  <script type="module" src="../src/js/storage.js"></script>
+  <script type="module" src="../src/js/todoStore.js"></script>
+  <script type="module" src="../src/js/todoView.js"></script>
+  <script type="module" src="../src/js/app.js"></script>
+
+  <!-- 実際のHTML構造を埋め込み -->
+  <div style="margin-top: 40px; padding: 20px; background: white; border-radius: 5px;">
+    <h2>実際の動作確認エリア</h2>
+    <main>
+      <!-- 入力セクション -->
+      <section class="input-section">
+        <input
+          type="text"
+          id="todo-input"
+          aria-label="新しいタスク"
+          placeholder="タスクを入力してください"
+          maxlength="200">
+        <button id="add-button" type="button">追加</button>
+      </section>
+
+      <!-- フィルタセクション -->
+      <section class="filter-section">
+        <button
+          class="filter-button active"
+          data-filter="all"
+          type="button"
+          aria-label="すべてのタスクを表示">すべて</button>
+        <button
+          class="filter-button"
+          data-filter="active"
+          type="button"
+          aria-label="未完了のタスクを表示">未完了</button>
+        <button
+          class="filter-button"
+          data-filter="completed"
+          type="button"
+          aria-label="完了したタスクを表示">完了</button>
+      </section>
+
+      <!-- タスクリスト -->
+      <section class="todo-list-section">
+        <ul id="todo-list" role="list">
+          <!-- ここにタスクが動的に追加される -->
+        </ul>
+      </section>
+    </main>
+  </div>
+</body>
+</html>

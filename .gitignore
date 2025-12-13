@@ -1,0 +1,41 @@
+# === 作業ログ（ポートフォリオに不要） ===
+docs/sprints/
+docs/planning/
+docs/progress/
+docs/review/
+docs/hearing/
+docs/analysis/
+
+# === 依存パッケージ ===
+node_modules/
+package-lock.json
+
+# === ビルド成果物 ===
+dist/
+build/
+
+# === IDE設定 ===
+.vs/
+.vscode/
+.idea/
+*.suo
+*.user
+
+# === テスト結果（生データ） ===
+coverage/
+test-results/
+playwright-report/
+
+# === ログ・キャッシュ ===
+*.log
+.cache/
+
+# === OS生成ファイル ===
+.DS_Store
+Thumbs.db
+
+# === 機密情報 ===
+.env
+.env.*
+*.key
+*.pem

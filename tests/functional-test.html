@@ -1,0 +1,604 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>機能テスト - vanilla-todo-fundamentals</title>
+  <link rel="stylesheet" href="../src/css/styles.css">
+  <style>
+    /* テスト用追加スタイル */
+    body {
+      background-color: #f0f0f0;
+    }
+
+    .test-header {
+      background-color: #fff;
+      padding: 20px;
+      margin-bottom: 20px;
+      border-bottom: 3px solid #007bff;
+    }
+
+    .test-header h1 {
+      margin: 0 0 10px 0;
+      color: #333;
+    }
+
+    .test-header p {
+      margin: 5px 0;
+      color: #666;
+    }
+
+    .test-controls {
+      background-color: #fff;
+      padding: 20px;
+      margin-bottom: 20px;
+      border-radius: 5px;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+
+    .test-controls h2 {
+      margin-top: 0;
+      color: #333;
+      font-size: 18px;
+    }
+
+    .test-controls button {
+      margin: 5px;
+      padding: 10px 20px;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 14px;
+      transition: background-color 0.2s;
+    }
+
+    .test-controls .btn-primary {
+      background-color: #007bff;
+      color: white;
+    }
+
+    .test-controls .btn-primary:hover {
+      background-color: #0056b3;
+    }
+
+    .test-controls .btn-secondary {
+      background-color: #6c757d;
+      color: white;
+    }
+
+    .test-controls .btn-secondary:hover {
+      background-color: #545b62;
+    }
+
+    .test-controls .btn-danger {
+      background-color: #dc3545;
+      color: white;
+    }
+
+    .test-controls .btn-danger:hover {
+      background-color: #c82333;
+    }
+
+    .test-results {
+      background-color: #fff;
+      padding: 20px;
+      margin-bottom: 20px;
+      border-radius: 5px;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+
+    .test-results h2 {
+      margin-top: 0;
+      color: #333;
+      font-size: 18px;
+    }
+
+    .test-case {
+      padding: 15px;
+      margin-bottom: 10px;
+      border-left: 4px solid #6c757d;
+      background-color: #f8f9fa;
+    }
+
+    .test-case.pass {
+      border-left-color: #28a745;
+      background-color: #d4edda;
+    }
+
+    .test-case.fail {
+      border-left-color: #dc3545;
+      background-color: #f8d7da;
+    }
+
+    .test-case h3 {
+      margin: 0 0 10px 0;
+      font-size: 16px;
+      color: #333;
+    }
+
+    .test-case .status {
+      font-weight: bold;
+      font-size: 14px;
+    }
+
+    .test-case .status.pass {
+      color: #28a745;
+    }
+
+    .test-case .status.fail {
+      color: #dc3545;
+    }
+
+    .test-case .details {
+      margin-top: 10px;
+      font-size: 14px;
+      color: #666;
+    }
+
+    .test-case .error {
+      color: #dc3545;
+      font-family: monospace;
+      background-color: #fff;
+      padding: 10px;
+      border-radius: 3px;
+      margin-top: 10px;
+    }
+
+    .test-summary {
+      background-color: #fff;
+      padding: 20px;
+      margin-bottom: 20px;
+      border-radius: 5px;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+      font-size: 16px;
+    }
+
+    .test-summary h2 {
+      margin-top: 0;
+      color: #333;
+    }
+
+    .test-summary .summary-item {
+      margin: 10px 0;
+    }
+
+    .test-summary .summary-item strong {
+      display: inline-block;
+      width: 120px;
+    }
+
+    .manual-instructions {
+      background-color: #fff3cd;
+      border-left: 4px solid #ffc107;
+      padding: 15px;
+      margin-bottom: 20px;
+      border-radius: 5px;
+    }
+
+    .manual-instructions h2 {
+      margin-top: 0;
+      color: #856404;
+      font-size: 18px;
+    }
+
+    .manual-instructions ol {
+      margin: 10px 0 10px 20px;
+      color: #856404;
+    }
+
+    .manual-instructions li {
+      margin-bottom: 8px;
+    }
+  </style>
+</head>
+<body>
+  <div class="test-header">
+    <h1>📋 機能テスト - vanilla-todo-fundamentals</h1>
+    <p><strong>テスト対象:</strong> 全Must機能（FR-001〜FR-005）</p>
+    <p><strong>実行日時:</strong> <span id="test-datetime"></span></p>
+  </div>
+
+  <div class="test-controls">
+    <h2>🔧 テストコントロール</h2>
+    <button class="btn-primary" id="run-auto-tests">自動テスト実行</button>
+    <button class="btn-secondary" id="reset-data">データリセット</button>
+    <button class="btn-danger" id="clear-results">結果クリア</button>
+  </div>
+
+  <div class="test-summary" id="test-summary" style="display: none;">
+    <h2>📊 テストサマリー</h2>
+    <div class="summary-item">
+      <strong>総テスト数:</strong>
+      <span id="total-tests">0</span>件
+    </div>
+    <div class="summary-item">
+      <strong>成功:</strong>
+      <span id="passed-tests" style="color: #28a745;">0</span>件
+    </div>
+    <div class="summary-item">
+      <strong>失敗:</strong>
+      <span id="failed-tests" style="color: #dc3545;">0</span>件
+    </div>
+    <div class="summary-item">
+      <strong>成功率:</strong>
+      <span id="success-rate">0</span>%
+    </div>
+  </div>
+
+  <div class="test-results" id="test-results">
+    <h2>📝 テスト結果</h2>
+    <p style="color: #666;">「自動テスト実行」ボタンをクリックしてテストを開始してください。</p>
+  </div>
+
+  <div class="manual-instructions">
+    <h2>✋ 手動確認項目</h2>
+    <p>以下の項目は手動で確認してください：</p>
+    <ol>
+      <li><strong>Enterキーで追加（FR-001）:</strong> 入力欄にテキストを入力してEnterキーを押し、タスクが追加されることを確認</li>
+      <li><strong>ページリロード後もデータ維持（FR-005）:</strong> ページをリロード（F5）し、タスクが消えていないことを確認</li>
+      <li><strong>レスポンシブデザイン:</strong> ブラウザウィンドウを縮小し、スマートフォンサイズでも正しく表示されることを確認</li>
+      <li><strong>アクセシビリティ:</strong> Tabキーでフォーカス移動、Enterキーで操作できることを確認</li>
+    </ol>
+  </div>
+
+  <!-- アプリ本体 -->
+  <header>
+    <h1>ToDo App</h1>
+  </header>
+
+  <main>
+    <!-- 入力セクション -->
+    <section class="input-section">
+      <input
+        type="text"
+        id="todo-input"
+        aria-label="新しいタスク"
+        placeholder="タスクを入力してください"
+        maxlength="200">
+      <button id="add-button" type="button">追加</button>
+    </section>
+
+    <!-- フィルタセクション -->
+    <section class="filter-section">
+      <button
+        class="filter-button active"
+        data-filter="all"
+        type="button"
+        aria-label="すべてのタスクを表示">すべて</button>
+      <button
+        class="filter-button"
+        data-filter="active"
+        type="button"
+        aria-label="未完了のタスクを表示">未完了</button>
+      <button
+        class="filter-button"
+        data-filter="completed"
+        type="button"
+        aria-label="完了したタスクを表示">完了</button>
+    </section>
+
+    <!-- タスクリスト -->
+    <section class="todo-list-section">
+      <ul id="todo-list" role="list">
+        <!-- ここにタスクが動的に追加される -->
+      </ul>
+    </section>
+  </main>
+
+  <!-- テストスクリプト -->
+  <script type="module">
+    import { addTodo, deleteTodo, toggleTodo, filterTodos, loadTodos, getTodos } from '../src/js/todoStore.js';
+    import { renderTodoList, updateFilterButtons } from '../src/js/todoView.js';
+
+    // テスト結果を格納
+    const testResults = [];
+    let testsPassed = 0;
+    let testsFailed = 0;
+
+    /**
+     * テストケース実行関数
+     */
+    function runTest(testName, testFunction) {
+      try {
+        testFunction();
+        testResults.push({
+          name: testName,
+          status: 'pass',
+          details: '期待通りに動作しました'
+        });
+        testsPassed++;
+        return true;
+      } catch (error) {
+        testResults.push({
+          name: testName,
+          status: 'fail',
+          details: error.message,
+          error: error.stack
+        });
+        testsFailed++;
+        return false;
+      }
+    }
+
+    /**
+     * アサーション関数
+     */
+    function assert(condition, message) {
+      if (!condition) {
+        throw new Error(message || 'アサーション失敗');
+      }
+    }
+
+    function assertEqual(actual, expected, message) {
+      if (actual !== expected) {
+        throw new Error(message || `期待値: ${expected}, 実際: ${actual}`);
+      }
+    }
+
+    function assertNotNull(value, message) {
+      if (value === null || value === undefined) {
+        throw new Error(message || '値がnullまたはundefinedです');
+      }
+    }
+
+    /**
+     * データリセット関数
+     */
+    function resetTestData() {
+      localStorage.removeItem('vanilla-todo-items');
+      loadTodos();
+      const todos = getTodos();
+      while (todos.length > 0) {
+        deleteTodo(todos[0].id);
+      }
+      renderTodoList([]);
+      console.log('[TEST] データをリセットしました');
+    }
+
+    /**
+     * 全自動テスト実行
+     */
+    async function runAllTests() {
+      // 結果クリア
+      testResults.length = 0;
+      testsPassed = 0;
+      testsFailed = 0;
+
+      console.log('[TEST] === 機能テスト開始 ===');
+
+      // データリセット
+      resetTestData();
+
+      // ===== FR-001: ToDoアイテムの追加 =====
+
+      // TEST-001: 空欄でボタン押下 → 追加されない
+      runTest('TEST-001: 空欄でボタン押下（追加されない）', () => {
+        resetTestData();
+        const result = addTodo('');
+        assertEqual(result, null, '空文字の場合nullを返すべき');
+        assertEqual(getTodos().length, 0, 'タスクが追加されないべき');
+      });
+
+      // TEST-002: 空白のみでボタン押下 → 追加されない
+      runTest('TEST-002: 空白のみでボタン押下（追加されない）', () => {
+        resetTestData();
+        const result = addTodo('   ');
+        assertEqual(result, null, '空白のみの場合nullを返すべき');
+        assertEqual(getTodos().length, 0, 'タスクが追加されないべき');
+      });
+
+      // TEST-003: テキスト入力して追加 → リストに表示される
+      runTest('TEST-003: テキスト入力して追加', () => {
+        resetTestData();
+        const result = addTodo('買い物に行く');
+        assertNotNull(result, 'タスクが返されるべき');
+        assertEqual(result.text, '買い物に行く', 'テキストが正しく保存されるべき');
+        assertEqual(result.completed, false, '初期状態は未完了であるべき');
+        assertEqual(getTodos().length, 1, 'タスク数が1になるべき');
+      });
+
+      // TEST-004: 前後の空白を除去して追加
+      runTest('TEST-004: 前後の空白を除去', () => {
+        resetTestData();
+        const result = addTodo('  メールを送る  ');
+        assertNotNull(result, 'タスクが返されるべき');
+        assertEqual(result.text, 'メールを送る', '空白がトリムされるべき');
+      });
+
+      // TEST-005: 200文字を超える場合は切り捨て
+      runTest('TEST-005: 200文字超過時の切り捨て', () => {
+        resetTestData();
+        const longText = 'あ'.repeat(250);
+        const result = addTodo(longText);
+        assertNotNull(result, 'タスクが返されるべき');
+        assertEqual(result.text.length, 200, '200文字に切り捨てられるべき');
+      });
+
+      // ===== FR-002: ToDoアイテムの削除 =====
+
+      // TEST-006: 削除ボタンクリック → リストから消える
+      runTest('TEST-006: タスク削除', () => {
+        resetTestData();
+        const task1 = addTodo('タスク1');
+        const task2 = addTodo('タスク2');
+        assertEqual(getTodos().length, 2, 'タスクが2つあるべき');
+
+        const success = deleteTodo(task1.id);
+        assertEqual(success, true, '削除が成功するべき');
+        assertEqual(getTodos().length, 1, 'タスクが1つになるべき');
+        assertEqual(getTodos()[0].id, task2.id, 'task2が残っているべき');
+      });
+
+      // TEST-007: 存在しないIDの削除 → 失敗
+      runTest('TEST-007: 存在しないタスクの削除', () => {
+        resetTestData();
+        const success = deleteTodo('invalid-id');
+        assertEqual(success, false, '削除が失敗するべき');
+      });
+
+      // ===== FR-003: 完了/未完了の切り替え =====
+
+      // TEST-008: チェックボックスクリック → 状態切り替え
+      runTest('TEST-008: 完了状態の切り替え', () => {
+        resetTestData();
+        const task = addTodo('会議資料作成');
+        assertEqual(task.completed, false, '初期状態は未完了');
+
+        toggleTodo(task.id);
+        const todos = getTodos();
+        assertEqual(todos[0].completed, true, '完了状態になるべき');
+
+        toggleTodo(task.id);
+        assertEqual(getTodos()[0].completed, false, '未完了に戻るべき');
+      });
+
+      // TEST-009: 存在しないIDの切替 → 失敗
+      runTest('TEST-009: 存在しないタスクの切替', () => {
+        resetTestData();
+        const success = toggleTodo('invalid-id');
+        assertEqual(success, false, '切替が失敗するべき');
+      });
+
+      // ===== FR-004: フィルタリング =====
+
+      // TEST-010: 「すべて」で全件表示
+      runTest('TEST-010: フィルタ「すべて」', () => {
+        resetTestData();
+        const task1 = addTodo('タスク1');
+        const task2 = addTodo('タスク2');
+        toggleTodo(task2.id); // task2を完了
+
+        const filtered = filterTodos('all');
+        assertEqual(filtered.length, 2, '全タスクが表示されるべき');
+      });
+
+      // TEST-011: 「未完了」で未完了のみ表示
+      runTest('TEST-011: フィルタ「未完了」', () => {
+        resetTestData();
+        const task1 = addTodo('タスク1');
+        const task2 = addTodo('タスク2');
+        const task3 = addTodo('タスク3');
+        toggleTodo(task2.id); // task2を完了
+
+        const filtered = filterTodos('active');
+        assertEqual(filtered.length, 2, '未完了タスクのみ表示されるべき');
+        assert(filtered.every(t => !t.completed), '全て未完了であるべき');
+      });
+
+      // TEST-012: 「完了」で完了のみ表示
+      runTest('TEST-012: フィルタ「完了」', () => {
+        resetTestData();
+        const task1 = addTodo('タスク1');
+        const task2 = addTodo('タスク2');
+        const task3 = addTodo('タスク3');
+        toggleTodo(task1.id); // task1を完了
+        toggleTodo(task3.id); // task3を完了
+
+        const filtered = filterTodos('completed');
+        assertEqual(filtered.length, 2, '完了タスクのみ表示されるべき');
+        assert(filtered.every(t => t.completed), '全て完了であるべき');
+      });
+
+      // ===== FR-005: データ永続化 =====
+
+      // TEST-013: localStorageへの保存・読込
+      runTest('TEST-013: データ永続化', () => {
+        resetTestData();
+
+        // データ追加
+        addTodo('永続化テスト1');
+        addTodo('永続化テスト2');
+        const task3 = addTodo('永続化テスト3');
+        toggleTodo(task3.id);
+
+        // localStorageから直接読み込み
+        const saved = localStorage.getItem('vanilla-todo-items');
+        assertNotNull(saved, 'localStorageに保存されているべき');
+
+        const parsed = JSON.parse(saved);
+        assertEqual(parsed.length, 3, '3つのタスクが保存されているべき');
+        assertEqual(parsed[2].completed, true, 'task3が完了状態で保存されているべき');
+
+        // 読込テスト
+        resetTestData();
+        assertEqual(getTodos().length, 0, 'リセット後は空であるべき');
+
+        loadTodos();
+        assertEqual(getTodos().length, 3, 'loadTodos後に3つ復元されるべき');
+      });
+
+      console.log('[TEST] === 機能テスト完了 ===');
+
+      // 結果表示
+      displayTestResults();
+    }
+
+    /**
+     * テスト結果をHTMLに表示
+     */
+    function displayTestResults() {
+      const resultsContainer = document.getElementById('test-results');
+      const summaryContainer = document.getElementById('test-summary');
+
+      // サマリー更新
+      summaryContainer.style.display = 'block';
+      document.getElementById('total-tests').textContent = testResults.length;
+      document.getElementById('passed-tests').textContent = testsPassed;
+      document.getElementById('failed-tests').textContent = testsFailed;
+      const successRate = testResults.length > 0
+        ? Math.round((testsPassed / testResults.length) * 100)
+        : 0;
+      document.getElementById('success-rate').textContent = successRate;
+
+      // 結果詳細
+      let html = '<h2>📝 テスト結果</h2>';
+
+      testResults.forEach((result, index) => {
+        const statusClass = result.status;
+        html += `
+          <div class="test-case ${statusClass}">
+            <h3>${result.name}</h3>
+            <div class="status ${statusClass}">
+              ${result.status === 'pass' ? '✅ 成功' : '❌ 失敗'}
+            </div>
+            <div class="details">${result.details}</div>
+            ${result.error ? `<div class="error">${result.error}</div>` : ''}
+          </div>
+        `;
+      });
+
+      resultsContainer.innerHTML = html;
+    }
+
+    /**
+     * イベントリスナー設定
+     */
+    document.getElementById('run-auto-tests').addEventListener('click', () => {
+      console.log('[TEST] テスト実行開始');
+      runAllTests();
+    });
+
+    document.getElementById('reset-data').addEventListener('click', () => {
+      if (confirm('すべてのデータをリセットしますか？')) {
+        resetTestData();
+        alert('データをリセットしました');
+      }
+    });
+
+    document.getElementById('clear-results').addEventListener('click', () => {
+      const resultsContainer = document.getElementById('test-results');
+      resultsContainer.innerHTML = '<h2>📝 テスト結果</h2><p style="color: #666;">「自動テスト実行」ボタンをクリックしてテストを開始してください。</p>';
+      document.getElementById('test-summary').style.display = 'none';
+      testResults.length = 0;
+      testsPassed = 0;
+      testsFailed = 0;
+    });
+
+    // 実行日時表示
+    document.getElementById('test-datetime').textContent = new Date().toLocaleString('ja-JP');
+
+    // ページロード時にアプリを初期化
+    import('../src/js/app.js');
+  </script>
+</body>
+</html>

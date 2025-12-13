@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CSS検証 - ToDo App</title>
+  <link rel="stylesheet" href="../src/css/styles.css">
+  <style>
+    body {
+      padding: 20px;
+      font-family: monospace;
+    }
+    .result {
+      margin: 20px 0;
+      padding: 15px;
+      border: 2px solid #4CAF50;
+      border-radius: 5px;
+      background: #f1f8f4;
+    }
+    .error {
+      border-color: #f44336;
+      background: #ffebee;
+    }
+    h1 { color: #333; }
+    pre {
+      background: #f5f5f5;
+      padding: 10px;
+      overflow-x: auto;
+    }
+  </style>
+</head>
+<body>
+  <h1>CSS検証テスト</h1>
+
+  <div id="result-container">
+    <p>検証中...</p>
+  </div>
+
+  <script>
+    // CSS読み込み確認
+    function validateCSS() {
+      const container = document.getElementById('result-container');
+      const results = [];
+
+      // CSSファイルが読み込まれているか確認
+      const stylesheets = document.styleSheets;
+      let cssLoaded = false;
+
+      for (let i = 0; i < stylesheets.length; i++) {
+        if (stylesheets[i].href && stylesheets[i].href.includes('styles.css')) {
+          cssLoaded = true;
+          results.push({
+            type: 'success',
+            message: 'CSS読み込み成功',
+            detail: `ファイル: ${stylesheets[i].href}`
+          });
+
+          // CSSルール数を確認
+          try {
+            const rules = stylesheets[i].cssRules || stylesheets[i].rules;
+            results.push({
+              type: 'success',
+              message: 'CSSルール数',
+              detail: `${rules.length} ルール`
+            });
+          } catch (e) {
+            results.push({
+              type: 'error',
+              message: 'CSSルールアクセスエラー',
+              detail: e.message
+            });
+          }
+        }
+      }
+
+      if (!cssLoaded) {
+        results.push({
+          type: 'error',
+          message: 'CSS読み込み失敗',
+          detail: 'styles.cssが見つかりませんでした'
+        });
+      }
+
+      // CSS Custom Propertiesの確認
+      const root = document.documentElement;
+      const computedStyle = getComputedStyle(root);
+
+      const customProps = [
+        '--primary-color',
+        '--primary-hover',
+        '--font-size-h1',
+        '--spacing-md',
+        '--max-width-desktop'
+      ];
+
+      customProps.forEach(prop => {
+        const value = computedStyle.getPropertyValue(prop).trim();
+        if (value) {
+          results.push({
+            type: 'success',
+            message: `CSS変数: ${prop}`,
+            detail: value
+          });
+        } else {
+          results.push({
+            type: 'error',
+            message: `CSS変数未定義: ${prop}`,
+            detail: ''
+          });
+        }
+      });
+
+      // メディアクエリの確認
+      const breakpoints = [
+        { min: 768, name: 'タブレット' },
+        { min: 1024, name: 'デスクトップ' }
+      ];
+
+      breakpoints.forEach(bp => {
+        const mq = window.matchMedia(`(min-width: ${bp.min}px)`);
+        results.push({
+          type: 'info',
+          message: `メディアクエリ: ${bp.name} (${bp.min}px+)`,
+          detail: mq.matches ? '適用中' : '未適用'
+        });
+      });
+
+      // 結果を表示
+      displayResults(results);
+    }
+
+    function displayResults(results) {
+      const container = document.getElementById('result-container');
+      container.innerHTML = '';
+
+      results.forEach(result => {
+        const div = document.createElement('div');
+        div.className = 'result';
+        if (result.type === 'error') {
+          div.classList.add('error');
+        }
+
+        const title = document.createElement('h3');
+        title.textContent = result.message;
+
+        const detail = document.createElement('pre');
+        detail.textContent = result.detail;
+
+        div.appendChild(title);
+        if (result.detail) {
+          div.appendChild(detail);
+        }
+
+        container.appendChild(div);
+      });
+
+      // 総合判定
+      const errorCount = results.filter(r => r.type === 'error').length;
+      const summary = document.createElement('div');
+      summary.className = 'result';
+      summary.style.marginTop = '30px';
+      summary.style.fontSize = '18px';
+      summary.style.fontWeight = 'bold';
+
+      if (errorCount === 0) {
+        summary.textContent = '✅ すべての検証に合格しました！';
+        summary.style.borderColor = '#4CAF50';
+        summary.style.background = '#f1f8f4';
+      } else {
+        summary.textContent = `❌ ${errorCount}件のエラーが見つかりました`;
+        summary.classList.add('error');
+      }
+
+      container.appendChild(summary);
+    }
+
+    // DOMContentLoaded後に実行
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', validateCSS);
+    } else {
+      validateCSS();
+    }
+  </script>
+</body>
+</html>

@@ -1,0 +1,19 @@
+{
+  "name": "vanilla-todo-fundamentals",
+  "version": "1.0.0",
+  "description": "ToDo管理アプリ - フロントエンド基礎技術の学習用",
+  "private": true,
+  "scripts": {
+    "serve": "npx http-server -p 8080 -o /src/index.html",
+    "test:integration": "npx http-server -p 8080 -o /tests/integration-test.html",
+    "test:view": "npx http-server -p 8080 -o /tests/manual-test-todoView.html",
+    "test:all": "npx http-server -p 8080 -o /tests/test.html"
+  },
+  "keywords": [
+    "todo",
+    "vanilla-javascript",
+    "learning"
+  ],
+  "author": "",
+  "license": "MIT"
+}

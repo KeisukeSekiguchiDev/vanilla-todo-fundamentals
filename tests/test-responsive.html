@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>レスポンシブデザインテスト - ToDo App</title>
+  <link rel="stylesheet" href="../src/css/styles.css">
+  <style>
+    /* テストページ用のスタイル */
+    .test-info {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      background: rgba(0, 0, 0, 0.8);
+      color: white;
+      padding: 10px;
+      text-align: center;
+      font-family: monospace;
+      z-index: 1000;
+    }
+
+    .test-info__viewport {
+      font-size: 14px;
+      margin: 5px 0;
+    }
+
+    .test-info__breakpoint {
+      font-size: 16px;
+      font-weight: bold;
+      color: #4CAF50;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>ToDo App</h1>
+  </header>
+
+  <main>
+    <!-- 入力セクション -->
+    <section class="input-section">
+      <input
+        type="text"
+        id="todo-input"
+        aria-label="新しいタスク"
+        placeholder="タスクを入力してください"
+        maxlength="200">
+      <button id="add-button" type="button">追加</button>
+    </section>
+
+    <!-- フィルタセクション -->
+    <section class="filter-section">
+      <button
+        class="filter-button active"
+        data-filter="all"
+        type="button">すべて</button>
+      <button
+        class="filter-button"
+        data-filter="active"
+        type="button">未完了</button>
+      <button
+        class="filter-button"
+        data-filter="completed"
+        type="button">完了</button>
+    </section>
+
+    <!-- タスクリスト（サンプルデータ） -->
+    <section class="todo-list-section">
+      <ul id="todo-list" role="list">
+        <li class="todo-item">
+          <input type="checkbox" class="todo-item__checkbox" id="todo-1">
+          <span class="todo-item__text">サンプルタスク1</span>
+          <button class="todo-item__delete" type="button">削除</button>
+        </li>
+        <li class="todo-item todo-item--completed">
+          <input type="checkbox" class="todo-item__checkbox" id="todo-2" checked>
+          <span class="todo-item__text">サンプルタスク2（完了）</span>
+          <button class="todo-item__delete" type="button">削除</button>
+        </li>
+        <li class="todo-item">
+          <input type="checkbox" class="todo-item__checkbox" id="todo-3">
+          <span class="todo-item__text">これは長いタスクテキストです。これは長いタスクテキストです。これは長いタスクテキストです。</span>
+          <button class="todo-item__delete" type="button">削除</button>
+        </li>
+      </ul>
+    </section>
+  </main>
+
+  <!-- ビューポート情報表示 -->
+  <div class="test-info">
+    <div class="test-info__viewport">ビューポート幅: <span id="viewport-width">0</span>px</div>
+    <div class="test-info__breakpoint">ブレークポイント: <span id="breakpoint">モバイル</span></div>
+  </div>
+
+  <script>
+    /**
+     * ビューポート情報を更新
+     */
+    function updateViewportInfo() {
+      const width = window.innerWidth;
+      const widthElement = document.getElementById('viewport-width');
+      const breakpointElement = document.getElementById('breakpoint');
+
+      widthElement.textContent = width;
+
+      // ブレークポイント判定
+      if (width >= 1024) {
+        breakpointElement.textContent = 'デスクトップ (1024px+)';
+        breakpointElement.style.color = '#2196F3';
+      } else if (width >= 768) {
+        breakpointElement.textContent = 'タブレット (768px+)';
+        breakpointElement.style.color = '#FF9800';
+      } else {
+        breakpointElement.textContent = 'モバイル (320px+)';
+        breakpointElement.style.color = '#4CAF50';
+      }
+    }
+
+    // 初期表示
+    updateViewportInfo();
+
+    // リサイズ時に更新
+    window.addEventListener('resize', updateViewportInfo);
+  </script>
+</body>
+</html>

@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Storage Module Test - vanilla-todo-fundamentals</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      max-width: 800px;
+      margin: 50px auto;
+      padding: 20px;
+    }
+    h1 {
+      color: #333;
+    }
+    .test-section {
+      margin: 20px 0;
+      padding: 15px;
+      border: 1px solid #ddd;
+      border-radius: 5px;
+    }
+    button {
+      padding: 8px 16px;
+      margin: 5px;
+      background-color: #007bff;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+    button:hover {
+      background-color: #0056b3;
+    }
+    .result {
+      margin-top: 10px;
+      padding: 10px;
+      background-color: #f8f9fa;
+      border-left: 4px solid #007bff;
+      font-family: monospace;
+      white-space: pre-wrap;
+    }
+    .success {
+      border-left-color: #28a745;
+    }
+    .error {
+      border-left-color: #dc3545;
+    }
+  </style>
+</head>
+<body>
+  <h1>Storage Module - 手動テスト</h1>
+
+  <div class="test-section">
+    <h2>テストケース 1: 正常なデータの保存・読み込み</h2>
+    <button onclick="testSaveAndLoad()">実行</button>
+    <div id="result1" class="result"></div>
+  </div>
+
+  <div class="test-section">
+    <h2>テストケース 2: データなし（初回アクセス）</h2>
+    <button onclick="testNoData()">実行</button>
+    <div id="result2" class="result"></div>
+  </div>
+
+  <div class="test-section">
+    <h2>テストケース 3: 不正なJSON（破損データ）</h2>
+    <button onclick="testInvalidJSON()">実行</button>
+    <div id="result3" class="result"></div>
+  </div>
+
+  <div class="test-section">
+    <h2>テストケース 4: 配列でないデータ</h2>
+    <button onclick="testNonArrayData()">実行</button>
+    <div id="result4" class="result"></div>
+  </div>
+
+  <div class="test-section">
+    <h2>テストケース 5: 空配列の保存・読み込み</h2>
+    <button onclick="testEmptyArray()">実行</button>
+    <div id="result5" class="result"></div>
+  </div>
+
+  <div class="test-section">
+    <h2>現在のlocalStorageの内容</h2>
+    <button onclick="showCurrentData()">表示</button>
+    <button onclick="clearAllData()">全削除</button>
+    <div id="current-data" class="result"></div>
+  </div>
+
+  <script type="module">
+    import { saveToStorage, loadFromStorage } from './js/storage.js';
+
+    // テスト関数をグローバルに公開
+    window.testSaveAndLoad = function() {
+      const testData = [
+        {
+          id: 'task-1',
+          text: '買い物に行く',
+          completed: false,
+          createdAt: '2025-12-13T10:00:00.000Z'
+        },
+        {
+          id: 'task-2',
+          text: 'レポート作成',
+          completed: true,
+          createdAt: '2025-12-13T11:00:00.000Z'
+        }
+      ];
+
+      saveToStorage(testData);
+      const loaded = loadFromStorage();
+
+      const result = document.getElementById('result1');
+      if (loaded && loaded.length === 2 && loaded[0].text === '買い物に行く') {
+        result.className = 'result success';
+        result.textContent = '✅ テスト成功\n保存データ: ' + JSON.stringify(testData, null, 2) +
+                            '\n\n読み込みデータ: ' + JSON.stringify(loaded, null, 2);
+      } else {
+        result.className = 'result error';
+        result.textContent = '❌ テスト失敗\n期待: タスク2件\n実際: ' + JSON.stringify(loaded);
+      }
+    };
+
+    window.testNoData = function() {
+      // localStorageをクリア
+      localStorage.removeItem('vanilla-todo-items');
+
+      const loaded = loadFromStorage();
+      const result = document.getElementById('result2');
+
+      if (loaded === null) {
+        result.className = 'result success';
+        result.textContent = '✅ テスト成功\nデータなし → null が返却されました';
+      } else {
+        result.className = 'result error';
+        result.textContent = '❌ テスト失敗\n期待: null\n実際: ' + JSON.stringify(loaded);
+      }
+    };
+
+    window.testInvalidJSON = function() {
+      // 不正なJSON文字列をセット
+      localStorage.setItem('vanilla-todo-items', '{invalid json}');
+
+      const loaded = loadFromStorage();
+      const result = document.getElementById('result3');
+
+      if (loaded === null) {
+        result.className = 'result success';
+        result.textContent = '✅ テスト成功\n不正なJSON → null が返却され、破損データが削除されました';
+      } else {
+        result.className = 'result error';
+        result.textContent = '❌ テスト失敗\n期待: null\n実際: ' + JSON.stringify(loaded);
+      }
+    };
+
+    window.testNonArrayData = function() {
+      // 配列でないデータをセット
+      localStorage.setItem('vanilla-todo-items', '{"key": "value"}');
+
+      const loaded = loadFromStorage();
+      const result = document.getElementById('result4');
+
+      if (loaded === null) {
+        result.className = 'result success';
+        result.textContent = '✅ テスト成功\n配列でないデータ → null が返却され、不正データが削除されました';
+      } else {
+        result.className = 'result error';
+        result.textContent = '❌ テスト失敗\n期待: null\n実際: ' + JSON.stringify(loaded);
+      }
+    };
+
+    window.testEmptyArray = function() {
+      const testData = [];
+      saveToStorage(testData);
+      const loaded = loadFromStorage();
+
+      const result = document.getElementById('result5');
+      if (loaded && Array.isArray(loaded) && loaded.length === 0) {
+        result.className = 'result success';
+        result.textContent = '✅ テスト成功\n空配列が正しく保存・読み込みできました';
+      } else {
+        result.className = 'result error';
+        result.textContent = '❌ テスト失敗\n期待: []\n実際: ' + JSON.stringify(loaded);
+      }
+    };
+
+    window.showCurrentData = function() {
+      const data = localStorage.getItem('vanilla-todo-items');
+      const result = document.getElementById('current-data');
+
+      if (data === null) {
+        result.textContent = 'データなし';
+      } else {
+        try {
+          const parsed = JSON.parse(data);
+          result.textContent = 'Raw: ' + data + '\n\nParsed:\n' + JSON.stringify(parsed, null, 2);
+        } catch (e) {
+          result.textContent = 'Raw (不正なJSON): ' + data;
+        }
+      }
+    };
+
+    window.clearAllData = function() {
+      localStorage.removeItem('vanilla-todo-items');
+      const result = document.getElementById('current-data');
+      result.textContent = 'localStorageをクリアしました';
+    };
+  </script>
+</body>
+</html>

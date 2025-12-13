@@ -1,0 +1,310 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>todoView.js 手動テスト</title>
+  <style>
+    body {
+      font-family: sans-serif;
+      max-width: 800px;
+      margin: 20px auto;
+      padding: 20px;
+    }
+    .test-section {
+      border: 2px solid #ccc;
+      padding: 15px;
+      margin-bottom: 20px;
+      border-radius: 8px;
+    }
+    .test-section h2 {
+      margin-top: 0;
+      color: #0066CC;
+    }
+    .test-result {
+      background: #f0f0f0;
+      padding: 10px;
+      margin-top: 10px;
+      border-radius: 4px;
+    }
+    .pass {
+      color: green;
+      font-weight: bold;
+    }
+    .fail {
+      color: red;
+      font-weight: bold;
+    }
+    button {
+      background: #0066CC;
+      color: white;
+      border: none;
+      padding: 8px 16px;
+      border-radius: 4px;
+      cursor: pointer;
+      margin-right: 8px;
+    }
+    button:hover {
+      background: #0052A3;
+    }
+
+    /* todoView用のスタイル */
+    #todo-list {
+      list-style: none;
+      padding: 0;
+    }
+    .todo-item {
+      display: flex;
+      align-items: center;
+      padding: 12px;
+      border: 1px solid #E0E0E0;
+      margin-bottom: 8px;
+      border-radius: 4px;
+    }
+    .todo-checkbox {
+      margin-right: 12px;
+    }
+    .todo-text {
+      flex: 1;
+      font-size: 16px;
+    }
+    .todo-text.completed {
+      text-decoration: line-through;
+      color: #999999;
+    }
+    .delete-button {
+      background: #DC3545;
+      padding: 6px 12px;
+      font-size: 14px;
+    }
+    .delete-button:hover {
+      background: #C82333;
+    }
+    .empty-message {
+      text-align: center;
+      color: #999;
+      padding: 40px 20px;
+    }
+
+    /* フィルタボタン */
+    .filter-section {
+      margin: 20px 0;
+    }
+    .filter-button {
+      background: #E0E0E0;
+      color: #333;
+      border: 1px solid #CCC;
+      padding: 8px 16px;
+      cursor: pointer;
+      margin-right: 8px;
+    }
+    .filter-button.active {
+      background: #0066CC;
+      color: white;
+      border-color: #0066CC;
+    }
+
+    /* 入力欄 */
+    #todo-input {
+      width: 300px;
+      padding: 8px;
+      border: 1px solid #CCC;
+      border-radius: 4px;
+    }
+  </style>
+</head>
+<body>
+  <h1>todoView.js 手動テスト</h1>
+
+  <!-- Test 1: renderTodoList -->
+  <div class="test-section">
+    <h2>Test 1: renderTodoList（タスク3件）</h2>
+    <button onclick="testRenderTodoList()">実行</button>
+    <div class="test-result" id="result-1"></div>
+    <ul id="todo-list"></ul>
+  </div>
+
+  <!-- Test 2: renderTodoList (空) -->
+  <div class="test-section">
+    <h2>Test 2: renderTodoList（空配列）</h2>
+    <button onclick="testRenderEmptyList()">実行</button>
+    <div class="test-result" id="result-2"></div>
+    <ul id="todo-list-2"></ul>
+  </div>
+
+  <!-- Test 3: XSS対策 -->
+  <div class="test-section">
+    <h2>Test 3: XSS対策（escapeHTML）</h2>
+    <button onclick="testXSSProtection()">実行</button>
+    <div class="test-result" id="result-3"></div>
+    <ul id="todo-list-3"></ul>
+  </div>
+
+  <!-- Test 4: updateFilterButtons -->
+  <div class="test-section">
+    <h2>Test 4: updateFilterButtons</h2>
+    <div class="filter-section">
+      <button class="filter-button active" data-filter="all">すべて</button>
+      <button class="filter-button" data-filter="active">未完了</button>
+      <button class="filter-button" data-filter="completed">完了</button>
+    </div>
+    <button onclick="testFilterButtons('all')">「すべて」を選択</button>
+    <button onclick="testFilterButtons('active')">「未完了」を選択</button>
+    <button onclick="testFilterButtons('completed')">「完了」を選択</button>
+    <div class="test-result" id="result-4"></div>
+  </div>
+
+  <!-- Test 5: clearInput -->
+  <div class="test-section">
+    <h2>Test 5: clearInput</h2>
+    <input type="text" id="todo-input" value="テスト入力">
+    <button onclick="testClearInput()">clearInput実行</button>
+    <div class="test-result" id="result-5"></div>
+  </div>
+
+  <script type="module">
+    import { renderTodoList, updateFilterButtons, clearInput } from '../src/js/todoView.js';
+
+    window.renderTodoList = renderTodoList;
+    window.updateFilterButtons = updateFilterButtons;
+    window.clearInput = clearInput;
+
+    // Test 1: renderTodoList（タスク3件）
+    window.testRenderTodoList = function() {
+      const todos = [
+        { id: 'task-1', text: '買い物に行く', completed: false },
+        { id: 'task-2', text: '本を読む', completed: true },
+        { id: 'task-3', text: '運動する', completed: false }
+      ];
+
+      renderTodoList(todos);
+
+      const todoItems = document.querySelectorAll('#todo-list .todo-item');
+      const result = document.getElementById('result-1');
+
+      if (todoItems.length === 3) {
+        const item1 = todoItems[0];
+        const checkbox1 = item1.querySelector('.todo-checkbox');
+        const text1 = item1.querySelector('.todo-text');
+
+        const item2 = todoItems[1];
+        const checkbox2 = item2.querySelector('.todo-checkbox');
+        const text2 = item2.querySelector('.todo-text');
+
+        const checks = [
+          todoItems.length === 3,
+          text1.textContent === '買い物に行く',
+          !checkbox1.checked,
+          !text1.classList.contains('completed'),
+          text2.textContent === '本を読む',
+          checkbox2.checked,
+          text2.classList.contains('completed')
+        ];
+
+        if (checks.every(c => c)) {
+          result.innerHTML = '<span class="pass">✅ PASS</span> - 3件のタスクが正しく描画されました';
+        } else {
+          result.innerHTML = '<span class="fail">❌ FAIL</span> - タスクの描画に問題があります';
+        }
+      } else {
+        result.innerHTML = '<span class="fail">❌ FAIL</span> - タスク数が一致しません';
+      }
+    };
+
+    // Test 2: renderTodoList（空配列）
+    window.testRenderEmptyList = function() {
+      const listElement = document.getElementById('todo-list-2');
+
+      // 一時的にIDを変更してrenderTodoListを実行
+      const originalId = document.getElementById('todo-list').id;
+      document.getElementById('todo-list').id = 'temp-list';
+      listElement.id = 'todo-list';
+
+      renderTodoList([]);
+
+      const emptyMessage = listElement.querySelector('.empty-message');
+      const result = document.getElementById('result-2');
+
+      if (emptyMessage && emptyMessage.textContent === 'タスクがありません') {
+        result.innerHTML = '<span class="pass">✅ PASS</span> - 空メッセージが表示されました';
+      } else {
+        result.innerHTML = '<span class="fail">❌ FAIL</span> - 空メッセージが表示されませんでした';
+      }
+
+      // IDを元に戻す
+      listElement.id = 'todo-list-2';
+      document.getElementById('temp-list').id = originalId;
+    };
+
+    // Test 3: XSS対策
+    window.testXSSProtection = function() {
+      const todos = [
+        { id: 'task-xss', text: '<script>alert("XSS")</script>', completed: false }
+      ];
+
+      const listElement = document.getElementById('todo-list-3');
+      const originalId = document.getElementById('todo-list').id;
+      document.getElementById('todo-list').id = 'temp-list';
+      listElement.id = 'todo-list';
+
+      renderTodoList(todos);
+
+      const todoText = listElement.querySelector('.todo-text');
+      const result = document.getElementById('result-3');
+
+      // textContentにはエスケープされた文字が含まれているはず
+      const isEscaped = todoText.textContent === '<script>alert("XSS")</script>';
+      const hasNoScript = !listElement.querySelector('script');
+
+      if (isEscaped && hasNoScript) {
+        result.innerHTML = '<span class="pass">✅ PASS</span> - XSS攻撃が防がれました（scriptタグが実行されていません）';
+      } else {
+        result.innerHTML = '<span class="fail">❌ FAIL</span> - XSS対策に問題があります';
+      }
+
+      listElement.id = 'todo-list-3';
+      document.getElementById('temp-list').id = originalId;
+    };
+
+    // Test 4: updateFilterButtons
+    window.testFilterButtons = function(filter) {
+      updateFilterButtons(filter);
+
+      const buttons = document.querySelectorAll('.filter-button');
+      const result = document.getElementById('result-4');
+
+      let activeButton = null;
+      let activeCount = 0;
+
+      buttons.forEach(button => {
+        if (button.classList.contains('active')) {
+          activeButton = button;
+          activeCount++;
+        }
+      });
+
+      if (activeCount === 1 && activeButton.dataset.filter === filter) {
+        result.innerHTML = `<span class="pass">✅ PASS</span> - 「${filter}」が選択されました`;
+      } else {
+        result.innerHTML = `<span class="fail">❌ FAIL</span> - フィルタ選択に問題があります`;
+      }
+    };
+
+    // Test 5: clearInput
+    window.testClearInput = function() {
+      const input = document.getElementById('todo-input');
+      const valueBefore = input.value;
+
+      clearInput();
+
+      const result = document.getElementById('result-5');
+
+      if (valueBefore !== '' && input.value === '') {
+        result.innerHTML = '<span class="pass">✅ PASS</span> - 入力欄がクリアされました';
+      } else {
+        result.innerHTML = '<span class="fail">❌ FAIL</span> - 入力欄のクリアに失敗しました';
+      }
+    };
+  </script>
+</body>
+</html>

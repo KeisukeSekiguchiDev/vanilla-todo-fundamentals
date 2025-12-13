@@ -1,0 +1,362 @@
+/* ===========================
+   CSS Reset & Box Sizing
+   =========================== */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+/* ===========================
+   CSS Custom Properties
+   =========================== */
+:root {
+  /* Color Palette */
+  --primary-color: #0066CC;
+  --primary-hover: #0052A3;
+  --danger-color: #E74C3C;
+  --danger-hover: #C0392B;
+  --text-color: #333333;
+  --text-muted: #999999;
+  --bg-color: #F5F5F5;
+  --bg-white: #FFFFFF;
+  --border-color: #DDDDDD;
+  --filter-inactive-bg: #E0E0E0;
+  --focus-color: #0066CC;
+  --todo-hover-bg: #F0F7FF; /* 薄い青 */
+
+  /* Font Sizes */
+  --font-size-h1: 2.5rem; /* 40px */
+  --font-size-body: 1rem; /* 16px */
+  --font-size-small: 0.875rem; /* 14px */
+
+  /* Spacing (8px Grid System) */
+  --spacing-xs: 4px;
+  --spacing-sm: 8px;
+  --spacing-md: 16px;
+  --spacing-lg: 24px;
+  --spacing-xl: 32px;
+
+  /* Layout */
+  --max-width-desktop: 800px;
+  --max-width-tablet: 600px;
+
+  /* Border Radius */
+  --border-radius: 8px;
+  --border-radius-sm: 4px;
+
+  /* Box Shadow */
+  --box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+/* ===========================
+   Base Styles
+   =========================== */
+body {
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  background-color: var(--bg-color);
+  color: var(--text-color);
+  line-height: 1.6;
+  min-height: 100vh;
+}
+
+/* ===========================
+   Header
+   =========================== */
+header {
+  text-align: center;
+  padding: var(--spacing-lg) var(--spacing-md);
+  background-color: var(--bg-white);
+  box-shadow: var(--box-shadow);
+}
+
+header h1 {
+  font-size: 2rem; /* 32px - モバイル向けサイズ */
+  font-weight: 600;
+  color: var(--primary-color);
+}
+
+/* ===========================
+   Main Container
+   =========================== */
+main {
+  /* モバイルベース: 画面いっぱいに近い配置 */
+  margin: var(--spacing-md);
+  padding: var(--spacing-md);
+  background: var(--bg-white);
+  border-radius: var(--border-radius);
+  box-shadow: var(--box-shadow);
+}
+
+/* ===========================
+   Input Section
+   =========================== */
+.input-section {
+  /* モバイルベース: 縦並び */
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-md);
+  margin-bottom: var(--spacing-lg);
+}
+
+#todo-input {
+  flex: 1;
+  padding: var(--spacing-md);
+  font-size: var(--font-size-body);
+  border: 1px solid var(--border-color);
+  border-radius: var(--border-radius-sm);
+  outline: none;
+  transition: border-color 0.2s;
+}
+
+#todo-input:focus {
+  border-color: var(--focus-color);
+  box-shadow: 0 0 0 2px rgba(0, 102, 204, 0.2);
+}
+
+#todo-input::placeholder {
+  color: var(--text-muted);
+}
+
+/* ===========================
+   Button Base Styles
+   =========================== */
+button {
+  padding: var(--spacing-md) var(--spacing-lg);
+  font-size: var(--font-size-body);
+  font-weight: 500;
+  border: none;
+  border-radius: var(--border-radius-sm);
+  cursor: pointer;
+  transition: background-color 0.2s, transform 0.1s;
+  outline: none;
+}
+
+button:hover {
+  transform: translateY(-1px);
+}
+
+button:active {
+  transform: translateY(0);
+}
+
+button:focus-visible {
+  box-shadow: 0 0 0 2px var(--focus-color);
+}
+
+/* Add Button */
+#add-button {
+  background-color: var(--primary-color);
+  color: var(--bg-white);
+  white-space: nowrap;
+  width: 100%; /* モバイルベース: 全幅 */
+}
+
+#add-button:hover {
+  background-color: var(--primary-hover);
+}
+
+/* ===========================
+   Filter Section
+   =========================== */
+.filter-section {
+  /* モバイルベース: 折り返し可能 */
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--spacing-sm);
+  margin-bottom: var(--spacing-lg);
+  justify-content: center;
+}
+
+.filter-button {
+  background-color: var(--filter-inactive-bg);
+  color: var(--text-color);
+  padding: var(--spacing-sm) var(--spacing-md);
+  font-size: var(--font-size-body);
+  flex: 1; /* モバイルベース: 均等配置 */
+  min-width: 80px;
+  border-radius: var(--border-radius-sm);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  transition: all 0.2s ease;
+}
+
+.filter-button:hover {
+  background-color: #D0D0D0;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.15);
+}
+
+.filter-button.active {
+  background-color: var(--primary-color);
+  color: var(--bg-white);
+  box-shadow: 0 2px 6px rgba(0, 102, 204, 0.3);
+}
+
+.filter-button.active:hover {
+  background-color: var(--primary-hover);
+  box-shadow: 0 3px 8px rgba(0, 102, 204, 0.4);
+}
+
+.filter-button:focus-visible {
+  outline: 2px solid var(--focus-color);
+  outline-offset: 2px;
+}
+
+/* ===========================
+   Todo List Section
+   =========================== */
+.todo-list-section {
+  min-height: 200px;
+}
+
+#todo-list {
+  list-style: none;
+}
+
+.todo-item {
+  /* モバイルベース: 折り返し可能 */
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--spacing-sm);
+  padding: var(--spacing-md);
+  border: 1px solid var(--border-color);
+  border-radius: var(--border-radius-sm);
+  margin-bottom: var(--spacing-sm);
+  background-color: var(--bg-white);
+  transition: background-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.todo-item:hover {
+  background-color: var(--todo-hover-bg); /* 薄い青の背景色 */
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.todo-item__checkbox {
+  width: 20px;
+  height: 20px;
+  cursor: pointer;
+  accent-color: var(--primary-color);
+  flex-shrink: 0; /* チェックボックスが縮まないように */
+}
+
+.todo-item__text {
+  flex: 1;
+  font-size: var(--font-size-body);
+  word-wrap: break-word;
+  transition: color 0.2s ease, opacity 0.2s ease;
+}
+
+.todo-item--completed .todo-item__text {
+  text-decoration: line-through;
+  color: var(--text-muted);
+  opacity: 0.7; /* 透明度を下げて完了感を強調 */
+}
+
+.todo-item__delete {
+  background-color: var(--danger-color);
+  color: var(--bg-white);
+  padding: var(--spacing-sm) var(--spacing-md);
+  font-size: var(--font-size-small);
+  min-width: 60px;
+  cursor: pointer;
+  flex-shrink: 0; /* 削除ボタンが縮まないように */
+  margin-left: auto; /* モバイルベース: 右寄せ */
+}
+
+.todo-item__delete:hover {
+  background-color: var(--danger-hover);
+}
+
+/* Empty State Message */
+.empty-message {
+  text-align: center;
+  color: var(--text-muted);
+  font-size: var(--font-size-body);
+  padding: var(--spacing-xl);
+}
+
+/* ===========================
+   Responsive Design (Mobile-First)
+   =========================== */
+
+/*
+  Base styles are for mobile (320px+)
+  Use min-width media queries to enhance for larger screens
+*/
+
+/* Mobile Base (320px+) - Already defined above */
+
+/* Ensure minimum touch target size for mobile */
+button,
+#todo-input,
+.todo-item__checkbox {
+  min-height: 44px;
+}
+
+.todo-item__checkbox {
+  min-width: 44px;
+}
+
+/* Tablet (768px+) */
+@media (min-width: 768px) {
+  header h1 {
+    font-size: var(--font-size-h1); /* 40px */
+  }
+
+  main {
+    max-width: var(--max-width-tablet);
+    margin: var(--spacing-lg) auto;
+    padding: var(--spacing-lg);
+  }
+
+  .input-section {
+    flex-direction: row;
+  }
+
+  #add-button {
+    width: auto;
+  }
+
+  .filter-section {
+    flex-wrap: nowrap;
+  }
+
+  .filter-button {
+    flex: initial;
+  }
+
+  .todo-item {
+    flex-wrap: nowrap;
+    gap: var(--spacing-md);
+  }
+
+  .todo-item__delete {
+    margin-left: 0; /* タブレット以上: 自動マージンを解除 */
+  }
+}
+
+/* Desktop (1024px+) */
+@media (min-width: 1024px) {
+  main {
+    max-width: var(--max-width-desktop);
+  }
+}
+
+/* ===========================
+   Accessibility Enhancements
+   =========================== */
+
+/* Focus Visible (for keyboard navigation) */
+*:focus-visible {
+  outline: 2px solid var(--focus-color);
+  outline-offset: 2px;
+}
+
+/* Reduce Motion for Users with Vestibular Disorders */
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}

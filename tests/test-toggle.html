@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>toggleTodo関数 手動テスト</title>
+  <style>
+    body {
+      font-family: sans-serif;
+      padding: 20px;
+      max-width: 800px;
+      margin: 0 auto;
+    }
+    h1 {
+      color: #333;
+    }
+    .test-section {
+      margin: 20px 0;
+      padding: 15px;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+    }
+    .test-section h2 {
+      margin-top: 0;
+      color: #555;
+    }
+    button {
+      padding: 8px 16px;
+      margin: 5px;
+      cursor: pointer;
+    }
+    #output {
+      background: #f5f5f5;
+      padding: 10px;
+      border-radius: 4px;
+      white-space: pre-wrap;
+      font-family: monospace;
+      font-size: 12px;
+      max-height: 400px;
+      overflow-y: auto;
+    }
+    .pass {
+      color: green;
+      font-weight: bold;
+    }
+    .fail {
+      color: red;
+      font-weight: bold;
+    }
+  </style>
+</head>
+<body>
+  <h1>toggleTodo関数 手動テスト</h1>
+
+  <div class="test-section">
+    <h2>テスト実行</h2>
+    <button onclick="runAllTests()">全テストを実行</button>
+    <button onclick="clearOutput()">ログをクリア</button>
+    <button onclick="clearStorage()">localStorageをクリア</button>
+  </div>
+
+  <div id="output"></div>
+
+  <script type="module">
+    import { getTodos, addTodo, deleteTodo, toggleTodo } from './js/todoStore.js';
+
+    let testCount = 0;
+    let passCount = 0;
+    let failCount = 0;
+
+    function log(message, className = '') {
+      const output = document.getElementById('output');
+      const line = document.createElement('div');
+      if (className) {
+        line.className = className;
+      }
+      line.textContent = message;
+      output.appendChild(line);
+    }
+
+    function assert(condition, testName) {
+      testCount++;
+      if (condition) {
+        passCount++;
+        log(`✅ PASS: ${testName}`, 'pass');
+      } else {
+        failCount++;
+        log(`❌ FAIL: ${testName}`, 'fail');
+      }
+    }
+
+    function clearOutput() {
+      document.getElementById('output').innerHTML = '';
+      testCount = 0;
+      passCount = 0;
+      failCount = 0;
+    }
+
+    function clearStorage() {
+      localStorage.clear();
+      log('localStorageをクリアしました');
+    }
+
+    window.runAllTests = function() {
+      clearOutput();
+      clearStorage();
+      log('=== toggleTodo関数 テスト開始 ===\n');
+
+      // テスト準備：タスクを追加
+      const task1 = addTodo('未完了タスク1');
+      const task2 = addTodo('未完了タスク2');
+
+      log('--- テストケース1: 未完了→完了の切り替え ---');
+      const result1 = toggleTodo(task1.id);
+      const todos1 = getTodos();
+      const updatedTask1 = todos1.find(t => t.id === task1.id);
+
+      assert(result1 === true, '戻り値がtrueである');
+      assert(updatedTask1.completed === true, 'completedフラグがtrueになっている');
+      log(`タスク1の状態: ${updatedTask1.completed ? '完了' : '未完了'}\n`);
+
+      log('--- テストケース2: 完了→未完了の切り替え ---');
+      const result2 = toggleTodo(task1.id);
+      const todos2 = getTodos();
+      const updatedTask2 = todos2.find(t => t.id === task1.id);
+
+      assert(result2 === true, '戻り値がtrueである');
+      assert(updatedTask2.completed === false, 'completedフラグがfalseに戻っている');
+      log(`タスク1の状態: ${updatedTask2.completed ? '完了' : '未完了'}\n`);
+
+      log('--- テストケース3: 存在しないIDの場合 ---');
+      const result3 = toggleTodo('task-999999');
+
+      assert(result3 === false, '戻り値がfalseである');
+      assert(getTodos().length === 2, 'タスク数に変化がない');
+      log('');
+
+      log('--- テストケース4: localStorageへの保存確認 ---');
+      toggleTodo(task2.id);
+      const storedData = localStorage.getItem('vanilla-todo-items');
+      const parsed = JSON.parse(storedData);
+
+      assert(storedData !== null, 'localStorageにデータが保存されている');
+      assert(Array.isArray(parsed), '保存データが配列である');
+      assert(parsed.length === 2, 'タスク数が2件である');
+      const storedTask2 = parsed.find(t => t.id === task2.id);
+      assert(storedTask2.completed === true, 'タスク2の完了状態が保存されている');
+      log('');
+
+      log('--- テストケース5: 連続切替 ---');
+      const task3 = addTodo('連続切替テスト');
+      toggleTodo(task3.id);
+      toggleTodo(task3.id);
+      toggleTodo(task3.id);
+      const todos5 = getTodos();
+      const finalTask3 = todos5.find(t => t.id === task3.id);
+
+      assert(finalTask3.completed === true, '3回切り替え後、最終状態が完了である');
+      log('');
+
+      log(`\n=== テスト完了 ===`);
+      log(`実行: ${testCount}件`);
+      log(`成功: ${passCount}件`, 'pass');
+      log(`失敗: ${failCount}件`, failCount > 0 ? 'fail' : '');
+      log(`成功率: ${testCount > 0 ? Math.round((passCount / testCount) * 100) : 0}%\n`);
+
+      if (failCount === 0) {
+        log('✅ 全テストがパスしました！', 'pass');
+      } else {
+        log('❌ 失敗したテストがあります', 'fail');
+      }
+    };
+
+    window.clearOutput = clearOutput;
+    window.clearStorage = clearStorage;
+
+    // ページロード時に自動実行
+    window.addEventListener('load', () => {
+      log('ページロード完了。「全テストを実行」ボタンをクリックしてください。');
+    });
+  </script>
+</body>
+</html>

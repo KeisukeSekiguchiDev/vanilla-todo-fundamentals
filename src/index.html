@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ToDo App - Vanilla JS</title>
+  <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+  <header>
+    <h1>ToDo App</h1>
+  </header>
+
+  <main>
+    <!-- 入力セクション -->
+    <section class="input-section">
+      <input
+        type="text"
+        id="todo-input"
+        aria-label="新しいタスク"
+        placeholder="タスクを入力してください"
+        maxlength="200">
+      <button id="add-button" type="button">追加</button>
+    </section>
+
+    <!-- フィルタセクション -->
+    <section class="filter-section">
+      <button
+        class="filter-button active"
+        data-filter="all"
+        type="button"
+        aria-label="すべてのタスクを表示">すべて</button>
+      <button
+        class="filter-button"
+        data-filter="active"
+        type="button"
+        aria-label="未完了のタスクを表示">未完了</button>
+      <button
+        class="filter-button"
+        data-filter="completed"
+        type="button"
+        aria-label="完了したタスクを表示">完了</button>
+    </section>
+
+    <!-- タスクリスト -->
+    <section class="todo-list-section">
+      <ul id="todo-list" role="list">
+        <!-- ここにタスクが動的に追加される -->
+      </ul>
+    </section>
+  </main>
+
+  <script type="module" src="js/storage.js"></script>
+  <script type="module" src="js/todoStore.js"></script>
+  <script type="module" src="js/todoView.js"></script>
+  <script type="module" src="js/app.js"></script>
+</body>
+</html>

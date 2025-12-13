@@ -1,0 +1,437 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sprint-002 結合テスト</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      padding: 20px;
+      background: #f5f5f5;
+    }
+    .test-container {
+      max-width: 900px;
+      margin: 0 auto;
+      background: white;
+      padding: 20px;
+      border-radius: 8px;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    }
+    h1 {
+      color: #0066CC;
+      border-bottom: 2px solid #0066CC;
+      padding-bottom: 10px;
+    }
+    h2 {
+      color: #333;
+      margin-top: 30px;
+      border-left: 4px solid #0066CC;
+      padding-left: 10px;
+    }
+    .test-case {
+      margin: 20px 0;
+      padding: 15px;
+      background: #f9f9f9;
+      border-radius: 4px;
+    }
+    .test-result {
+      margin-top: 10px;
+      padding: 10px;
+      border-radius: 4px;
+      font-weight: bold;
+    }
+    .test-result.pass {
+      background: #d4edda;
+      color: #155724;
+      border: 1px solid #c3e6cb;
+    }
+    .test-result.fail {
+      background: #f8d7da;
+      color: #721c24;
+      border: 1px solid #f5c6cb;
+    }
+    button {
+      background: #0066CC;
+      color: white;
+      border: none;
+      padding: 10px 20px;
+      border-radius: 4px;
+      cursor: pointer;
+      margin-right: 10px;
+      margin-top: 10px;
+    }
+    button:hover {
+      background: #0052A3;
+    }
+    pre {
+      background: #f4f4f4;
+      padding: 10px;
+      border-radius: 4px;
+      overflow-x: auto;
+      font-size: 12px;
+    }
+    .summary {
+      margin: 20px 0;
+      padding: 15px;
+      background: #e7f3ff;
+      border-left: 4px solid #0066CC;
+      border-radius: 4px;
+    }
+  </style>
+</head>
+<body>
+  <div class="test-container">
+    <h1>Sprint-002 結合テスト実行レポート</h1>
+
+    <div class="summary">
+      <h3>テスト概要</h3>
+      <p>実行日時: <span id="test-datetime"></span></p>
+      <p>対象: storage.js, todoStore.js, todoView.js, app.js</p>
+      <p>合計テスト数: <span id="total-tests">0</span></p>
+      <p>成功: <span id="passed-tests" style="color: green;">0</span></p>
+      <p>失敗: <span id="failed-tests" style="color: red;">0</span></p>
+      <p>成功率: <span id="success-rate">0%</span></p>
+    </div>
+
+    <button id="run-all-tests">全テストを実行</button>
+    <button id="clear-storage">ストレージをクリア</button>
+
+    <div id="test-results"></div>
+  </div>
+
+  <script type="module">
+    import { saveToStorage, loadFromStorage } from '../src/js/storage.js';
+    import { addTodo, deleteTodo, toggleTodo, filterTodos, loadTodos, getTodos } from '../src/js/todoStore.js';
+
+    let totalTests = 0;
+    let passedTests = 0;
+    let failedTests = 0;
+
+    // テスト実行日時を設定
+    document.getElementById('test-datetime').textContent = new Date().toLocaleString('ja-JP');
+
+    // ストレージクリア
+    document.getElementById('clear-storage').addEventListener('click', () => {
+      localStorage.clear();
+      location.reload();
+    });
+
+    // テスト結果を表示
+    function logResult(testName, passed, message = '') {
+      totalTests++;
+      if (passed) {
+        passedTests++;
+      } else {
+        failedTests++;
+      }
+
+      const resultsDiv = document.getElementById('test-results');
+      const resultHtml = `
+        <div class="test-case">
+          <strong>${testName}</strong>
+          <div class="test-result ${passed ? 'pass' : 'fail'}">
+            ${passed ? '✅ PASS' : '❌ FAIL'}
+            ${message ? `<br>${message}` : ''}
+          </div>
+        </div>
+      `;
+      resultsDiv.innerHTML += resultHtml;
+
+      updateSummary();
+    }
+
+    function updateSummary() {
+      document.getElementById('total-tests').textContent = totalTests;
+      document.getElementById('passed-tests').textContent = passedTests;
+      document.getElementById('failed-tests').textContent = failedTests;
+      const rate = totalTests > 0 ? ((passedTests / totalTests) * 100).toFixed(1) : 0;
+      document.getElementById('success-rate').textContent = `${rate}%`;
+    }
+
+    // テストスイート
+    async function runIntegrationTests() {
+      totalTests = 0;
+      passedTests = 0;
+      failedTests = 0;
+      document.getElementById('test-results').innerHTML = '';
+
+      // ストレージクリア
+      localStorage.clear();
+
+      // ===========================
+      // 1. モジュール間結合テスト
+      // ===========================
+
+      const section1 = document.createElement('h2');
+      section1.textContent = '1. モジュール間結合テスト';
+      document.getElementById('test-results').appendChild(section1);
+
+      // IT-001: storage.js ↔ todoStore.js 連携
+      try {
+        const testData = [
+          { id: 'test-1', text: 'テスト1', completed: false, createdAt: new Date().toISOString() }
+        ];
+        saveToStorage(testData);
+        const loaded = loadFromStorage();
+        const passed = loaded !== null && loaded.length === 1 && loaded[0].text === 'テスト1';
+        logResult('IT-001: storage.js → todoStore.js データ保存・読み込み連携', passed,
+          passed ? 'データの保存・読み込みが正常に動作' : 'データの読み込みに失敗');
+      } catch (e) {
+        logResult('IT-001: storage.js → todoStore.js データ保存・読み込み連携', false, e.message);
+      }
+
+      // IT-002: todoStore.js でのデータ追加・取得
+      try {
+        localStorage.clear();
+        loadTodos();
+        const todo = addTodo('結合テスト用タスク');
+        const todos = getTodos();
+        const passed = todo !== null && todos.length === 1 && todos[0].text === '結合テスト用タスク';
+        logResult('IT-002: todoStore.js タスク追加→取得', passed,
+          passed ? 'タスクの追加と取得が正常に動作' : 'タスクの追加または取得に失敗');
+      } catch (e) {
+        logResult('IT-002: todoStore.js タスク追加→取得', false, e.message);
+      }
+
+      // IT-003: todoStore.js タスク削除
+      try {
+        const todos = getTodos();
+        const id = todos[0].id;
+        const result = deleteTodo(id);
+        const todosAfter = getTodos();
+        const passed = result === true && todosAfter.length === 0;
+        logResult('IT-003: todoStore.js タスク削除', passed,
+          passed ? 'タスクの削除が正常に動作' : 'タスクの削除に失敗');
+      } catch (e) {
+        logResult('IT-003: todoStore.js タスク削除', false, e.message);
+      }
+
+      // IT-004: todoStore.js 完了切替
+      try {
+        const todo = addTodo('完了切替テスト');
+        const id = todo.id;
+        toggleTodo(id);
+        const todos = getTodos();
+        const passed = todos[0].completed === true;
+        logResult('IT-004: todoStore.js 完了切替', passed,
+          passed ? '完了状態の切り替えが正常に動作' : '完了状態の切り替えに失敗');
+        deleteTodo(id);
+      } catch (e) {
+        logResult('IT-004: todoStore.js 完了切替', false, e.message);
+      }
+
+      // IT-005: todoStore.js フィルタリング
+      try {
+        localStorage.clear();
+        loadTodos();
+        addTodo('タスク1');
+        const todo2 = addTodo('タスク2');
+        toggleTodo(todo2.id);
+
+        const all = filterTodos('all');
+        const active = filterTodos('active');
+        const completed = filterTodos('completed');
+
+        const passed = all.length === 2 && active.length === 1 && completed.length === 1;
+        logResult('IT-005: todoStore.js フィルタリング機能', passed,
+          passed ? 'フィルタリングが正常に動作（all: 2, active: 1, completed: 1）' : 'フィルタリングに失敗');
+      } catch (e) {
+        logResult('IT-005: todoStore.js フィルタリング機能', false, e.message);
+      }
+
+      // ===========================
+      // 2. データ永続化テスト
+      // ===========================
+
+      const section2 = document.createElement('h2');
+      section2.textContent = '2. データ永続化テスト';
+      document.getElementById('test-results').appendChild(section2);
+
+      // IT-006: localStorage永続化
+      try {
+        localStorage.clear();
+        loadTodos();
+        const todo1 = addTodo('永続化テスト1');
+        const todo2 = addTodo('永続化テスト2');
+
+        // 手動でストレージから読み込み
+        const savedData = loadFromStorage();
+        const passed = savedData !== null && savedData.length === 2;
+        logResult('IT-006: localStorage データ永続化', passed,
+          passed ? 'データがlocalStorageに正しく保存されている' : 'データの保存に失敗');
+      } catch (e) {
+        logResult('IT-006: localStorage データ永続化', false, e.message);
+      }
+
+      // IT-007: リロード後のデータ復元
+      try {
+        const beforeReload = getTodos();
+        loadTodos(); // リロードを模擬
+        const afterReload = getTodos();
+        const passed = afterReload.length === beforeReload.length;
+        logResult('IT-007: リロード後のデータ復元', passed,
+          passed ? `データが正しく復元された（${afterReload.length}件）` : 'データの復元に失敗');
+      } catch (e) {
+        logResult('IT-007: リロード後のデータ復元', false, e.message);
+      }
+
+      // ===========================
+      // 3. XSS対策テスト
+      // ===========================
+
+      const section3 = document.createElement('h2');
+      section3.textContent = '3. XSS対策テスト';
+      document.getElementById('test-results').appendChild(section3);
+
+      // IT-008: HTMLタグのエスケープ
+      try {
+        localStorage.clear();
+        loadTodos();
+        const xssText = '<script>alert("XSS")</script>';
+        const todo = addTodo(xssText);
+        const todos = getTodos();
+        const passed = todos[0].text === xssText; // 保存時はそのまま
+        logResult('IT-008: HTMLタグを含む入力の保存', passed,
+          passed ? 'スクリプトタグがそのまま保存される（エスケープは表示時）' : '保存に失敗');
+      } catch (e) {
+        logResult('IT-008: HTMLタグを含む入力の保存', false, e.message);
+      }
+
+      // IT-009: 特殊文字のエスケープ
+      try {
+        const specialText = '< > & " \'';
+        const todo = addTodo(specialText);
+        const todos = getTodos();
+        const passed = todos.some(t => t.text === specialText);
+        logResult('IT-009: 特殊文字を含む入力の保存', passed,
+          passed ? '特殊文字がそのまま保存される' : '特殊文字の保存に失敗');
+      } catch (e) {
+        logResult('IT-009: 特殊文字を含む入力の保存', false, e.message);
+      }
+
+      // ===========================
+      // 4. 境界値テスト
+      // ===========================
+
+      const section4 = document.createElement('h2');
+      section4.textContent = '4. 境界値テスト';
+      document.getElementById('test-results').appendChild(section4);
+
+      // IT-010: 空文字入力
+      try {
+        const result = addTodo('   ');
+        const passed = result === null;
+        logResult('IT-010: 空文字・空白のみの入力', passed,
+          passed ? '空文字はnullを返す（追加されない）' : '空文字が追加されてしまった');
+      } catch (e) {
+        logResult('IT-010: 空文字・空白のみの入力', false, e.message);
+      }
+
+      // IT-011: 最大文字数（200文字）
+      try {
+        const longText = 'あ'.repeat(250); // 250文字
+        const todo = addTodo(longText);
+        const passed = todo !== null && todo.text.length === 200;
+        logResult('IT-011: 最大文字数（200文字）入力', passed,
+          passed ? '201文字以上は200文字に切り捨てられる' : '文字数制限が機能していない');
+      } catch (e) {
+        logResult('IT-011: 最大文字数（200文字）入力', false, e.message);
+      }
+
+      // IT-012: 空のToDoリスト
+      try {
+        localStorage.clear();
+        loadTodos();
+        const todos = getTodos();
+        const passed = todos.length === 0;
+        logResult('IT-012: 空のToDoリスト取得', passed,
+          passed ? '空配列が返される' : '空リストの処理に失敗');
+      } catch (e) {
+        logResult('IT-012: 空のToDoリスト取得', false, e.message);
+      }
+
+      // IT-013: 存在しないIDの削除
+      try {
+        const result = deleteTodo('non-existent-id');
+        const passed = result === false;
+        logResult('IT-013: 存在しないIDの削除', passed,
+          passed ? 'falseを返す（エラーにならない）' : '不正な動作');
+      } catch (e) {
+        logResult('IT-013: 存在しないIDの削除', false, e.message);
+      }
+
+      // IT-014: 存在しないIDの完了切替
+      try {
+        const result = toggleTodo('non-existent-id');
+        const passed = result === false;
+        logResult('IT-014: 存在しないIDの完了切替', passed,
+          passed ? 'falseを返す（エラーにならない）' : '不正な動作');
+      } catch (e) {
+        logResult('IT-014: 存在しないIDの完了切替', false, e.message);
+      }
+
+      // ===========================
+      // 5. エラーハンドリングテスト
+      // ===========================
+
+      const section5 = document.createElement('h2');
+      section5.textContent = '5. エラーハンドリングテスト';
+      document.getElementById('test-results').appendChild(section5);
+
+      // IT-015: 破損データの処理
+      try {
+        localStorage.setItem('vanilla-todo-items', 'invalid json');
+        const loaded = loadFromStorage();
+        const passed = loaded === null;
+        logResult('IT-015: 破損したJSONデータの処理', passed,
+          passed ? '破損データはnullを返し、削除される' : '破損データの処理に失敗');
+        localStorage.clear();
+      } catch (e) {
+        logResult('IT-015: 破損したJSONデータの処理', false, e.message);
+      }
+
+      // IT-016: 配列でないデータの処理
+      try {
+        localStorage.setItem('vanilla-todo-items', '{"invalid": "data"}');
+        const loaded = loadFromStorage();
+        const passed = loaded === null;
+        logResult('IT-016: 配列でないデータの処理', passed,
+          passed ? '配列でないデータはnullを返し、削除される' : '不正データの処理に失敗');
+        localStorage.clear();
+      } catch (e) {
+        logResult('IT-016: 配列でないデータの処理', false, e.message);
+      }
+
+      // IT-017: フィルタ不正値
+      try {
+        loadTodos();
+        addTodo('テスト');
+        const result = filterTodos('invalid-filter');
+        const passed = Array.isArray(result) && result.length === 0;
+        logResult('IT-017: 不正なフィルタ値の処理', passed,
+          passed ? '不正なフィルタ値は空配列を返す' : '不正なフィルタ値の処理に失敗');
+      } catch (e) {
+        logResult('IT-017: 不正なフィルタ値の処理', false, e.message);
+      }
+
+      // 最終サマリー表示
+      const finalSummary = document.createElement('div');
+      finalSummary.className = 'summary';
+      finalSummary.innerHTML = `
+        <h3>テスト実行完了</h3>
+        <p><strong>総合判定: ${failedTests === 0 ? '✅ PASS (全テスト成功)' : '❌ FAIL'}</strong></p>
+        <p>合計: ${totalTests}件、成功: ${passedTests}件、失敗: ${failedTests}件</p>
+        <p>成功率: ${((passedTests / totalTests) * 100).toFixed(1)}%</p>
+      `;
+      document.getElementById('test-results').appendChild(finalSummary);
+    }
+
+    // 全テスト実行ボタン
+    document.getElementById('run-all-tests').addEventListener('click', runIntegrationTests);
+
+    // ページ読み込み時に自動実行
+    runIntegrationTests();
+  </script>
+</body>
+</html>
