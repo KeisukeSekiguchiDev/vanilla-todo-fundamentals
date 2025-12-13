@@ -5,9 +5,7 @@
 
 ## Demo
 
-![ToDo App Demo](docs/assets/demo.gif)
-
-> **Note**: デモGIFは後から追加予定
+**Live Demo**: [https://keisukesekiguchidev.github.io/vanilla-todo-fundamentals/](https://keisukesekiguchidev.github.io/vanilla-todo-fundamentals/)
 
 ## Features
 
