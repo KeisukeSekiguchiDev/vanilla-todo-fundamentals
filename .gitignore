@@ -6,6 +6,15 @@ docs/review/
 docs/hearing/
 docs/analysis/
 
+# === AI開発ガイド（内部用） ===
+.claude/
+
+# === AI生成画像（DALL-E等） ===
+generated/
+**/generated-images/
+*_generated.*
+generated_*.*
+
 # === 依存パッケージ ===
 node_modules/
 package-lock.json
