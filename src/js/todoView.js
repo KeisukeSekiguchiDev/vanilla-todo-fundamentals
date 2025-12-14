@@ -99,7 +99,10 @@ export function renderTodoList(todos) {
 
   if (todos.length === 0) {
     todoListElement.innerHTML = `
-      <p class="empty-message" role="status">タスクがありません</p>
+      <div class="empty-state" role="status">
+        <img src="assets/images/illustration_empty_state_200.png" alt="" class="empty-state__image">
+        <p class="empty-state__text">タスクがありません</p>
+      </div>
     `;
     return;
   }
